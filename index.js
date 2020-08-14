@@ -8,11 +8,11 @@ const bibleApi = require('./bibleApi');
 
 const main = async () => {
 
-    console.log("Starting BibleBot for Dicord....")
+    console.log("Starting BibleBot for Dicord....");
 
     const client = new Discord.Client();
 
-    console.log("Pre-fetching books from bible API").
+    console.log("Pre-fetching books from bible API");
     const books = await bibleApi.fetchBooks();
 
     client.on('ready', () => {
