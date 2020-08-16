@@ -11,4 +11,4 @@ To run the bot you have to put your bot token and the API key for the bible API 
 ## Todos / Ideas
 - [ ] Make it possible to search for a specific term
 - [ ] Use some caching to improve performance
-- [ ] Text-To-Speech (TTS) either in chat or via voice channel
+- [*] Text-To-Speech (TTS) either in chat or via voice channel
