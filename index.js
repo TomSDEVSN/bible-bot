@@ -1,7 +1,10 @@
 require('dotenv').config();
 
 const Discord = require('discord.js');
-const googletts = require('google-tts-api');
+const googleTTS = require('node-google-tts-api');
+const tts = new googleTTS();
+const fs = require('fs');
+const crypto = require('crypto');
 const _ = require('lodash');
 
 const bibleApi = require('./bibleApi');
@@ -18,10 +21,18 @@ async function randomVerse(books) {
     return myVerse.data.content.trim();
 }
 
+function getSHA256(input) {
+    return crypto.createHash('sha256').update(input).digest('hex');
+}
+
 const main = async () => {
 
-    console.log("Starting BibleBot for Dicord....");
+    console.log("Starting BibleBot for Discord....");
 
+    console.log("Creating TTS directory");
+    fs.mkdir("./tts", function(err) {});
+
+    console.log("Initializing Discord Client");
     const client = new Discord.Client();
 
     console.log("Pre-fetching books from bible API");
@@ -38,15 +49,24 @@ const main = async () => {
 
       if (msg.content === '!biblejoin') {
         if (msg.member.voice.channel) {
-          googletts(await randomVerse(books), 'de', 1)
-            .then(async function (url) {
-              console.log(url);
-              const connection = await msg.member.voice.channel.join();
-              const dispatcher = connection.play(url);
-              dispatcher.on('finish', () => {
-                dispatcher.destroy();
-              });
-              connection.disconnect();
+	  const text = await randomVerse(books);
+          tts.get({
+		  text: text,
+		  lang: 'de',
+		  limit_bypass: (text >= 200) ? true : false
+	  }).then(arr => {
+	      const data = (arr >= 200) ? tts.concat(arr) : arr;
+              const path = './tts/' + getSHA256(data) + '.mp3';
+	      if (!fs.existsSync(path)) {
+	          fs.writeFileSync(path, data);
+	      }
+	      msg.member.voice.channel.join().then(connection => {
+		  const dispatcher = connection.play(path);
+		  dispatcher.on('finish', () => {
+			  dispatcher.destroy();
+			  connection.disconnect();
+		  });
+	      });
           });
         } else {
           msg.reply("Du bist nicht im Channel");
