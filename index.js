@@ -49,22 +49,22 @@ const main = async () => {
 
       if (msg.content === '!biblejoin') {
         if (msg.member.voice.channel) {
-	  const text = await randomVerse(books);
+          const text = await randomVerse(books);
           tts.get({
 		  text: text,
 		  lang: 'de',
 		  limit_bypass: (text >= 200) ? true : false
 	  }).then(arr => {
 	      const data = (arr >= 200) ? tts.concat(arr) : arr;
-              const path = './tts/' + getSHA256(data) + '.mp3';
+ 	      const path = './tts/' + getSHA256(data) + '.mp3';
 	      if (!fs.existsSync(path)) {
 	          fs.writeFileSync(path, data);
 	      }
 	      msg.member.voice.channel.join().then(connection => {
 		  const dispatcher = connection.play(path);
 		  dispatcher.on('finish', () => {
-			  dispatcher.destroy();
-			  connection.disconnect();
+		      dispatcher.destroy();
+		      connection.disconnect();
 		  });
 	      });
           });
